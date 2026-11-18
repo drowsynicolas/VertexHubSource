@@ -1,0 +1,1807 @@
+-- discord.gg/syncrypt
+
+if not game:IsLoaded() then
+	game.Loaded:Wait()
+end
+
+shared.VertexLoaded = true
+
+if shared.Premium == nil then
+	shared.Premium = false
+end
+
+local lib = loadstring(game:HttpGet("https://raw.smokingscripts.org/module"))()
+local lib2 = loadstring(game:HttpGet("https://raw.smokingscripts.org/Library"))()
+
+repeat
+	task.wait()
+until game.Players.LocalPlayer.PlayerGui:FindFirstChild("MainGUI")
+
+local UserInputService = game:GetService("UserInputService")
+local platform = UserInputService:GetPlatform()
+
+if platform == Enum.Platform.Windows or platform == Enum.Platform.OSX or UserInputService.KeyboardEnabled and UserInputService.MouseEnabled and not UserInputService.TouchEnabled then
+	size = UDim2.fromOffset(580, 460)
+else
+	size = UDim2.fromOffset(530, 395)
+end
+
+local LocalPlayer = Services.Players.LocalPlayer
+local Knife
+local Gun
+local t1 = {}
+local u9
+local u10
+local v11 = lib2:Window({
+	Title = "vertex",
+	Subtitle = "discord.gg/vxt",
+	Size = size,
+	DragStyle = 1,
+	DisabledWindowControls = {},
+	ShowUserInfo = true,
+	Keybind = Enum.KeyCode.LeftControl,
+	AcrylicBlur = false
+})
+
+Vertex = v11:TabGroup()
+shared.tabs = {
+	Main = Vertex:Tab({
+		Name = "Main",
+		Image = "rbxassetid://10734934585"
+	}),
+	Target = Vertex:Tab({
+		Name = "Target",
+		Image = "rbxassetid://10709818534"
+	}),
+	Visual = Vertex:Tab({
+		Name = "Misc",
+		Image = "rbxassetid://10709818399"
+	}),
+	Roles = Vertex:Tab({
+		Name = "Roles",
+		Image = "rbxassetid://10747373426"
+	}),
+	Tracker = Vertex:Tab({
+		Name = "Webhook",
+		Image = "rbxassetid://10709811110"
+	}),
+	Player = Vertex:Tab({
+		Name = "Player",
+		Image = "rbxassetid://10747373176"
+	}),
+	Settings = Vertex:Tab({
+		Name = "Settings",
+		Image = "rbxassetid://10734950309"
+	})
+}
+
+repeat
+	task.wait()
+until shared.loaded
+
+local function v12()
+	return Services.UserInputService.TouchEnabled and not Services.UserInputService.KeyboardEnabled
+end
+local function v13(p1)
+	local Humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	local v15 = LocalPlayer.Backpack:FindFirstChild(p1)
+
+	if Humanoid and v15 then
+		Humanoid:EquipTool(v15)
+	end
+end
+local function v16(p2)
+	for _, child in pairs(workspace:GetChildren()) do
+		if not child:IsA("Model") then
+			continue
+		end
+
+		if string.find(string.lower(child.Name), "lobby") then
+			continue
+		end
+
+		local CoinContainer = child:FindFirstChild("CoinContainer")
+		local Spawns = child:FindFirstChild("Spawns")
+
+		if p2 == "CoinContainer" and CoinContainer then
+			return CoinContainer
+		end
+
+		if p2 ~= "Spawns" then
+			continue
+		end
+
+		if Spawns then
+			return Spawns
+		end
+	end
+
+	return nil
+end
+local function v21()
+	if v16("Spawns") then
+		return v16("Spawns").Parent:FindFirstChild("GunDrop") or false
+	end
+end
+local function v22(p3, p4)
+	local v23 = p4 and p4[p3.Name]
+	local Character = p3.Character
+
+	if not v23 then
+		return false
+	end
+
+	if not (v23.Killed or v23.Dead) then
+		return true
+	end
+
+	if Character and Character:FindFirstChild("HumanoidCloned") then
+		return true
+	end
+
+	return false
+end
+local function v25(p5)
+	for _, player in ipairs(game.Players:GetPlayers()) do
+		if player.Backpack:FindFirstChild(p5) then
+			return player.Name
+		end
+
+		if not player.Character then
+			continue
+		end
+
+		if player.Character:FindFirstChild(p5) then
+			return player.Name
+		end
+	end
+
+	return nil
+end
+local function v28(p6, p7)
+	local Humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+
+	if Humanoid then
+		if p6 then
+			Humanoid.WalkSpeed = p6
+		end
+
+		if p7 then
+			Humanoid.JumpPower = p7
+		end
+	end
+end
+
+CoinAttribute = function(p8, p9)
+	local Humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+	local Position = p8.Position
+	local Position2 = Humanoid.Parent.PrimaryPart.Position
+
+	if (Position - Position2).Magnitude <= 4 and shared.Premium then
+		wait()
+		firetouchinterest(p8, LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), 1)
+		wait(0.1)
+		firetouchinterest(p8, LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), 0)
+		p8:Destroy()
+	end
+
+	if (Position - Position2).Magnitude <= 2 then
+		wait(0.1)
+		p8.Name = "vertex_collected"
+	end
+
+	if p8:GetAttribute("Collected") ~= true and p9 then
+		return true
+	end
+
+	return false
+end
+
+local function v33()
+	local attribute = LocalPlayer:GetAttribute("Elite")
+	local v35 = roles[LocalPlayer.Name]
+
+	if v35 then
+		local v36 = tonumber(v35.Coins) or 0
+
+		if attribute ~= nil and v36 == 50 then
+			return true
+		end
+
+		if attribute == nil and v36 == 40 then
+			return true
+		end
+	end
+
+	return false
+end
+local function v37(p10, p11, p12, p13, p14)
+	local Character = LocalPlayer.Character
+	local HumanoidRootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+
+	if HumanoidRootPart then
+		if u9 then
+			u9:Cancel()
+		end
+
+		HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+		HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
+
+		local tween = Services.TweenService:Create(HumanoidRootPart, TweenInfo.new(math.clamp((HumanoidRootPart.Position - p10.Position).Magnitude / p11, 0.15, 5), p12 and Enum.EasingStyle.Quad or Enum.EasingStyle.Linear, p12 and Enum.EasingDirection.Out or Enum.EasingDirection.In), {
+			CFrame = p10
+		})
+
+		u9 = tween
+		tween:Play()
+
+		if p13 == true then
+			while true do
+				task.wait()
+				CoinAttribute(p14, true)
+
+				if not CoinAttribute(p14, true) then
+					break
+				elseif v33() or not v22(LocalPlayer, roles) then
+					break
+				end
+			end
+		end
+
+		u9 = nil
+	end
+end
+
+ShootMurderer = function()
+	local v41 = Knife
+	local LocalPlayer2 = game.Players.LocalPlayer
+
+	if not LocalPlayer2 then
+		return
+	end
+
+	local Gun2
+
+	if LocalPlayer2:FindFirstChild("Backpack") then
+		Gun2 = LocalPlayer2.Backpack:FindFirstChild("Gun")
+	end
+
+	if not Gun2 and LocalPlayer2.Character then
+		Gun2 = LocalPlayer2.Character:FindFirstChild("Gun")
+	end
+
+	if not Gun2 then
+		return
+	end
+
+	if not v41 then
+		return
+	end
+
+	local v44 = game.Players:FindFirstChild(v41)
+
+	if not v44 or not v44.Character then
+		return
+	end
+
+	local HumanoidRootPart = v44.Character:FindFirstChild("HumanoidRootPart")
+	local Humanoid = v44.Character:FindFirstChild("Humanoid")
+
+	if not HumanoidRootPart or not Humanoid then
+		return
+	end
+
+	local AssemblyLinearVelocity = HumanoidRootPart.AssemblyLinearVelocity or Vector3.new(0, 0, 0)
+	local MoveDirection = Humanoid.MoveDirection or Vector3.new(0, 0, 0)
+	local cFrame = CFrame.new(HumanoidRootPart.Position + AssemblyLinearVelocity * Vector3.new(0, 0.5, 0) * 0.18666666666666665 + MoveDirection * 2.8)
+	local HumanoidRootPart2 = LocalPlayer2.Character and LocalPlayer2.Character:FindFirstChild("HumanoidRootPart")
+
+	if not HumanoidRootPart2 then
+		return
+	end
+
+	local v51
+
+	if Options.KillM:GetValue() then
+		local RootAttachment = HumanoidRootPart:FindFirstChild("RootAttachment")
+
+		if RootAttachment then
+			v51 = RootAttachment.WorldCFrame * CFrame.new(0, 2, 0)
+		else
+			v51 = HumanoidRootPart.CFrame
+		end
+	else
+		local GunShoulderAttachment = HumanoidRootPart2:FindFirstChild("GunShoulderAttachment")
+
+		if GunShoulderAttachment then
+			v51 = GunShoulderAttachment.WorldCFrame
+		else
+			v51 = HumanoidRootPart2.CFrame
+		end
+	end
+
+	if Gun2:FindFirstChild("Handle") then
+		local Handle = Gun2.Handle
+
+		if Handle:FindFirstChild("Reload") and not Handle.Reload.Playing then
+			local Shoot = workspace:FindFirstChild(LocalPlayer2.Name) and workspace[LocalPlayer2.Name]:FindFirstChild("Gun") and workspace[LocalPlayer2.Name].Gun:FindFirstChild("Shoot")
+
+			if Shoot then
+				Shoot:FireServer(v51, cFrame)
+			end
+		end
+	end
+end
+
+local function v56(p15)
+	local HumanoidRootPart = (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()):FindFirstChild("HumanoidRootPart")
+
+	if p15 ~= LocalPlayer and p15.Character then
+		if p15.Character:FindFirstChild("HumanoidRootPart") then
+			local v58 = (p15.Character.HumanoidRootPart.Position - HumanoidRootPart.Position).Unit * 50
+			local raycastParams = RaycastParams.new()
+
+			raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+			raycastParams.FilterDescendantsInstances = { LocalPlayer.Character }
+
+			local hit = workspace:Raycast(HumanoidRootPart.Position, v58, raycastParams)
+
+			return not hit or hit.Instance.Parent == p15.Character
+		end
+	end
+
+	return false
+end
+local function v61()
+	if not LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
+		local BodyVelocity = Instance.new("BodyVelocity")
+
+		BodyVelocity.Name = "BodyVelocity"
+		BodyVelocity.velocity = Vector3.new(0, 0, 0)
+		BodyVelocity.maxForce = Vector3.new(math.huge, math.huge, math.huge)
+		BodyVelocity.Parent = LocalPlayer.Character.HumanoidRootPart
+	end
+end
+local function v63()
+	if LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
+		LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity"):Destroy()
+	end
+end
+local function v64()
+	pcall(function()
+		if Options.Mode:GetValue() == "Nearest" then
+			LocalPlayer.Character.Humanoid.Health = 0
+		else
+			local Character = LocalPlayer.Character
+
+			if not Character then
+				return
+			end
+
+			if not Character:FindFirstChild("HumanoidRootPart") then
+				return
+			end
+
+			for _, child in pairs(workspace:GetChildren()) do
+				if (child:IsA("Model") or child:IsA("Folder")) and string.find(string.lower(child.Name), "lobby") then
+					for _, descendant in pairs(child:GetDescendants()) do
+						if not descendant:IsA("SpawnLocation") then
+							continue
+						end
+
+						v37(CFrame.new(descendant.Position + Vector3.new(0, 5, 0)), 5000)
+
+						return
+					end
+				end
+			end
+		end
+	end)
+end
+local function v70(p16, p17)
+	local v71
+	local huge = math.huge
+	local t2 = {}
+	local t3 = {}
+	local v75 = game.Players:FindFirstChild(Knife)
+	local HumanoidRootPart = v75.Character and v75.Character:FindFirstChild("HumanoidRootPart")
+	local Position = HumanoidRootPart and HumanoidRootPart.Position or nil
+	local CoinContainer = v16("CoinContainer")
+
+	for _, child in pairs(CoinContainer:GetChildren()) do
+		if CoinAttribute(child, true) and child.Name == "Coin_Server" and child:FindFirstChild("TouchInterest") and v22(LocalPlayer, roles) then
+			local Position2 = child.CoinVisual.Position
+			local Magnitude = (p16.Position - Position2).Magnitude
+
+			if Position then
+				if (Position2 - Position).Magnitude >= 25 then
+					table.insert(t3, child)
+				end
+
+				if Magnitude <= 50 then
+					table.insert(t2, child)
+				end
+
+				if Magnitude < huge then
+					huge = Magnitude
+					v71 = child
+				end
+			end
+		end
+	end
+
+	if p17 == "closest" then
+		return v71
+	end
+
+	if p17 == "random" then
+		if #t2 ~= 0 then
+			if #t2 > 0 then
+				return t2[math.random(1, #t2)]
+			end
+		elseif #t3 > 0 then
+			return t3[math.random(1, #t3)]
+		end
+	end
+
+	return nil
+end
+
+local speed
+
+local function v84(p18, p19)
+	local Position = p18.CoinVisual.Position
+	local Magnitude = (p19.Position - Position).Magnitude
+
+	LocalPlayer.Character:FindFirstChild("Humanoid")
+
+	if shared.Premium then
+		speed = shared.speed or 23
+	else
+		speed = 21
+	end
+
+	if not v33() and CoinAttribute(p18, true) then
+		local cFrame = CFrame.new(Position.X, Position.Y, Position.Z)
+
+		if Options.Mode:GetValue() ~= "Randomize" then
+			if Magnitude > 200 then
+				p19.CFrame = cFrame * CFrame.new(0, 10, 0)
+				wait(2)
+				v37(cFrame * CFrame.new(0, 1.5, 0), Magnitude > 200 and 5000 or speed, false)
+			else
+				v37(cFrame * CFrame.new(0, 1.5, 0), Magnitude > 20 and speed or speed, false)
+			end
+		elseif Magnitude > 200 then
+			p19.CFrame = cFrame * CFrame.new(0, 10, 0)
+			wait(2)
+			v37(cFrame * CFrame.new(0, 1.5, 0), Magnitude > 200 and speed or speed, false)
+		else
+			v37(cFrame * CFrame.new(0, 1.5, 0), 20, true, true, p18)
+		end
+	end
+end
+local function v88()
+	local _ = pcall(function()
+		local Character = LocalPlayer.Character
+		local Humanoid = Character:FindFirstChild("Humanoid")
+		local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+		if not Knife then
+			v63()
+
+			return
+		end
+
+		local v94
+
+		if v33() and HumanoidRootPart and Humanoid.Health > 0 and v22(LocalPlayer, roles) then
+			local ok2 = Options.KillAll:GetValue()
+
+			if not ok2 then
+				ok2 = Options.KillM:GetValue()
+			end
+
+			local ok3 = ok2
+
+			if not ok3 then
+				ok3 = Options.AutoShoot:GetValue()
+			end
+
+			if not ok3 or Knife ~= LocalPlayer.Name and Gun ~= LocalPlayer.Name then
+				v64()
+
+				return
+			end
+
+			if not Options.AutoFarm:GetValue() or not v22(LocalPlayer, roles) then
+				return
+			end
+
+			if Options.Mode:GetValue() == "Nearest" then
+				v94 = v70(HumanoidRootPart, "closest")
+
+				if v94 then
+					if not HumanoidRootPart then
+						return
+					end
+
+					if u10 ~= v94 then
+						v61()
+						v84(v94, HumanoidRootPart)
+						u10 = v94
+					end
+				end
+			else
+				if Options.Mode:GetValue() == "Nearest + XP Farm" then
+					v94 = v70(HumanoidRootPart, "closest")
+				else
+					v94 = v70(HumanoidRootPart, "random")
+				end
+
+				if v94 then
+					if not HumanoidRootPart then
+						return
+					end
+
+					if u10 ~= v94 then
+						v61()
+						v84(v94, HumanoidRootPart)
+						u10 = v94
+					end
+				end
+			end
+
+			return
+		else
+			local AutoFarm = Options.AutoFarm
+
+			if AutoFarm:GetValue() and v22(LocalPlayer, roles) then
+				local Mode = Options.Mode
+				local ok = Mode:GetValue() == "Nearest"
+
+				if ok then
+					v94 = v70(HumanoidRootPart, "closest")
+
+					if v94 then
+						if not HumanoidRootPart then
+							return
+						end
+
+						if u10 ~= v94 then
+							v61()
+							v84(v94, HumanoidRootPart)
+							u10 = v94
+						end
+					end
+				else
+					local Mode2 = Options.Mode
+
+					ok = Mode2:GetValue() == "Nearest + XP Farm"
+
+					if ok then
+						v94 = v70(HumanoidRootPart, "closest")
+					else
+						v94 = v70(HumanoidRootPart, "random")
+					end
+
+					if v94 then
+						if not HumanoidRootPart then
+							return
+						end
+
+						if u10 ~= v94 then
+							v61()
+							v84(v94, HumanoidRootPart)
+							u10 = v94
+						end
+					end
+				end
+			end
+		end
+	end)
+end
+local function v101()
+	for _, player in pairs(Services.Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			if player.Character then
+				local Highlight = player.Character:FindFirstChild("Highlight")
+
+				if not Highlight then
+					Highlight = Instance.new("Highlight", player.Character)
+					t1[player] = Highlight
+				end
+
+				if v22(player, roles) then
+					local v105 = roles[player.Name]
+
+					if not v105 then
+						Highlight.FillColor = Color3.fromRGB(76, 215, 134)
+					elseif v105.Role == "Murderer" then
+						Highlight.FillColor = Color3.fromRGB(225, 0, 0)
+					elseif v105.Role == "Sheriff" or v105.Role == "Hero" then
+						Highlight.FillColor = Color3.fromRGB(0, 0, 225)
+					else
+						Highlight.FillColor = Color3.fromRGB(76, 215, 134)
+					end
+				else
+					Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+				end
+			else
+				local v106 = t1[player]
+
+				if v106 then
+					v106:Destroy()
+					t1[player] = nil
+				end
+			end
+		end
+	end
+end
+local function v107(p20)
+	if p20 == game.Players.LocalPlayer then
+		return
+	end
+
+	local Character = p20.Character
+
+	if Character and Character:FindFirstChild("Head") then
+		local Head = Character.Head
+
+		if not Head:FindFirstChild("UsernameTag") then
+			local BillboardGui = Instance.new("BillboardGui")
+
+			BillboardGui.Name = "UsernameTag"
+			BillboardGui.Adornee = Head
+			BillboardGui.Parent = Head
+			BillboardGui.Size = UDim2.new(0, 200, 0, 50)
+			BillboardGui.StudsOffset = Vector3.new(0, 2.5, 0)
+			BillboardGui.AlwaysOnTop = true
+
+			local TextLabel = Instance.new("TextLabel")
+
+			TextLabel.Parent = BillboardGui
+			TextLabel.Text = p20.Name
+			TextLabel.TextSize = 20
+			TextLabel.BackgroundTransparency = 1
+			TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			TextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+			TextLabel.TextStrokeTransparency = 0.5
+			TextLabel.Size = UDim2.new(1, 0, 1, 0)
+			TextLabel.Font = Enum.Font.SourceSansBold
+		end
+	end
+end
+local function v112()
+	for k, v in pairs(t1) do
+		if v then
+			v:Destroy()
+			t1[k] = nil
+		end
+	end
+
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player ~= game.Players.LocalPlayer then
+			local Character = player.Character
+
+			if Character and Character:FindFirstChild("Head") then
+				local Head = Character.Head
+
+				if Head:FindFirstChild("UsernameTag") then
+					Head:FindFirstChild("UsernameTag"):Destroy()
+				end
+			end
+		end
+	end
+end
+local function v119()
+	if LocalPlayer.Character ~= nil then
+		for _, descendant in pairs(LocalPlayer.Character:GetDescendants()) do
+			if descendant:IsA("BasePart") and descendant.CanCollide == true and v22(LocalPlayer, roles) then
+				descendant.CanCollide = false
+			end
+		end
+	end
+end
+
+shared.Main:Toggle("AutoFarm", "Auto Farm", function(p21)
+	if p21 then
+		Noclipping = Services.RunService.Stepped:Connect(v119)
+	end
+
+	repeat
+		task.wait()
+		v88()
+	until not Options.AutoFarm:GetValue()
+
+	Noclipping:Disconnect()
+	v63()
+end)
+shared.Main:Dropdown({
+	Name = "Farm Mode",
+	Multi = false,
+	Required = true,
+	Options = {
+		"Nearest + XP Farm",
+		"Nearest",
+		"Randomize"
+	},
+	Default = 2,
+	Callback = function()
+		v63()
+	end
+}, "Mode")
+shared.Main:Toggle("AutoGrab", "Automatically Grab Gun", function(p22)
+	if p22 then
+		repeat
+			task.wait()
+			pcall(function()
+				if Knife then
+					local v122 = game.Players:FindFirstChild(Knife)
+					local HumanoidRootPart = v122.Character and v122.Character:FindFirstChild("HumanoidRootPart")
+					local HumanoidRootPart2 = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+					if v22(LocalPlayer, roles) and Knife ~= LocalPlayer.Name and HumanoidRootPart2 and v21() then
+						local ok = v33()
+
+						if not ok then
+							ok = not Options.AutoFarm:GetValue()
+						end
+
+						if ok then
+							local magnitude = (HumanoidRootPart.Position - v21().Position).magnitude
+							local v127 = v21()
+
+							if v127 then
+								v127.CFrame = HumanoidRootPart2.CFrame
+							end
+						end
+					end
+				end
+			end)
+		until not Options.AutoGrab:GetValue()
+	end
+end)
+
+local v128 = shared.Target:Dropdown({
+	Name = "Target",
+	Search = true,
+	Multi = false,
+	Required = false,
+	Options = {},
+	Default = {},
+	Callback = function()
+	end
+}, "Target")
+
+shared.Target:Toggle("TargetFling", "Fling Target", function(p23)
+	if p23 then
+		repeat
+			task.wait()
+
+			local value = Options.Target:GetValue()
+			local value2 = Options.Target:GetValue() and game.Players:FindFirstChild(value)
+
+			if value2 then
+				lib:fling(value2)
+			end
+
+			task.wait(3)
+		until not Options.TargetFling:GetValue()
+	end
+end)
+shared.Target:Toggle("Spectate", "Spectate Target", function(p24)
+	if p24 then
+		repeat
+			task.wait()
+
+			local value = Options.Target:GetValue()
+			local v132 = game.Players:FindFirstChild(value)
+
+			if v132 and v132.Character then
+				if v132.Character:FindFirstChild("Head") then
+					game.Workspace.CurrentCamera.CameraSubject = v132.Character.Head
+				end
+			end
+		until not Options.Spectate:GetValue()
+
+		if game.Players.LocalPlayer.Character then
+			game.Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
+			game.Workspace.CurrentCamera.CameraType = "Custom"
+		end
+	end
+end)
+shared.Target:Toggle("Annoy", "Loop Go To Target", function(p25)
+	if p25 then
+		repeat
+			task.wait()
+
+			local _ = pcall(function()
+				local Character = game.Players.LocalPlayer.Character
+
+				if not Character or not Character:FindFirstChild("HumanoidRootPart") then
+					return
+				end
+
+				local value = Options.Target:GetValue()
+				local v137 = workspace:FindFirstChild(value)
+
+				if v137 and v137:FindFirstChild("HumanoidRootPart") then
+					Character.HumanoidRootPart.CFrame = v137.HumanoidRootPart.CFrame
+				end
+			end)
+		until not Options.Annoy:GetValue()
+	end
+end)
+shared.Target:Button({
+	Name = "Teleport To Target",
+	Callback = function()
+		local Character = game.Players.LocalPlayer.Character
+
+		if not Character or not Character:FindFirstChild("HumanoidRootPart") then
+			return
+		end
+
+		local value = Options.Target:GetValue()
+		local v140 = workspace:FindFirstChild(value)
+
+		if v140 and v140:FindFirstChild("HumanoidRootPart") then
+			Character.HumanoidRootPart.CFrame = v140.HumanoidRootPart.CFrame
+		end
+	end
+})
+shared.Target:Divider()
+shared.Target:Toggle("FlingSheriff", "Fling Sheriff", function(p26)
+	if p26 then
+		repeat
+			task.wait()
+
+			local _ = pcall(function()
+				local v143 = Gun and game.Players:FindFirstChild(Gun)
+
+				if Gun ~= LocalPlayer.Name then
+					lib:fling(v143)
+					wait(3)
+				end
+			end)
+		until not Options.FlingSheriff:GetValue()
+	end
+end)
+shared.Target:Toggle("FlingMurderer", "Fling Murderer", function(p27)
+	if p27 then
+		repeat
+			task.wait()
+
+			local _ = pcall(function()
+				local v146 = Knife and game.Players:FindFirstChild(Knife)
+
+				if v146 and Knife ~= LocalPlayer.Name then
+					lib:fling(v146)
+					wait(3)
+				end
+			end)
+		until not Options.FlingMurderer:GetValue()
+	end
+end)
+
+local function v147()
+	for _, player in ipairs(Services.Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			v128:InsertOptions({ player.Name })
+		end
+	end
+end
+
+local connection = Services.Players.PlayerAdded:Connect(function(player)
+	v128:InsertOptions({ player.Name })
+end)
+local connection2 = Services.Players.PlayerRemoving:Connect(function(player)
+	v128:RemoveOptions({ player.Name })
+end)
+
+v147()
+shared.Main:Toggle("DodgeKnife", "Dodge Thrown Knife", {
+	Locked = shared.Premium
+}, function(p28)
+	if p28 then
+		repeat
+			task.wait()
+			pcall(function()
+				for _, child in ipairs(workspace:GetChildren()) do
+					if child.Name == "ThrowingKnife" then
+						local BladePosition = child:FindFirstChild("BladePosition")
+
+						child:FindFirstChild("KnifeVisual")
+
+						if BladePosition and (BladePosition.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 15 then
+							local Position = LocalPlayer.Character.HumanoidRootPart.Position
+
+							LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Position.X, Position.Y + 100, Position.Z)
+							wait(0.2)
+							LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Position)
+						end
+					end
+				end
+			end)
+		until not Options.DodgeKnife:GetValue()
+	end
+end)
+shared.Main:Toggle("EndRound", "Auto End Round", function(p29)
+	if p29 then
+		v11:Notify({
+			Title = "Notification",
+			Description = "Flings Murderer when you are not in the round.",
+			Duration = 5
+		})
+
+		repeat
+			task.wait()
+
+			local v156 = Knife and game.Players:FindFirstChild(Knife)
+
+			if v156 and not v22(LocalPlayer, roles) and Knife ~= LocalPlayer.Name then
+				lib:fling(v156)
+				wait(3)
+			end
+		until not Options.EndRound:GetValue()
+	end
+end)
+shared.Main:Divider()
+shared.Main:Button({
+	Name = "Teleport To Lobby",
+	Callback = function()
+		local Character = game.Players.LocalPlayer.Character
+
+		if not Character then
+			return
+		end
+
+		if not Character:FindFirstChild("HumanoidRootPart") then
+			return
+		end
+
+		for _, child in pairs(workspace:GetChildren()) do
+			if (child:IsA("Model") or child:IsA("Folder")) and string.find(string.lower(child.Name), "lobby") then
+				for _, descendant in pairs(child:GetDescendants()) do
+					if not descendant:IsA("SpawnLocation") then
+						continue
+					end
+
+					v37(CFrame.new(descendant.Position + Vector3.new(0, 5, 0)), 5000)
+
+					return
+				end
+			end
+		end
+	end
+})
+shared.Main:Button({
+	Name = "Teleport To Map",
+	Callback = function()
+		if not v16("Spawns") then
+			v11:Notify({
+				Title = "Notification",
+				Description = "Map does not exist.",
+				Duration = 5
+			})
+
+			return
+		end
+
+		local Spawns = v16("Spawns")
+
+		for _, descendant in ipairs(Spawns:GetDescendants()) do
+			v37(descendant.CFrame * CFrame.new(0, 5, 0), 5000)
+
+			return
+		end
+	end
+})
+shared.Visual:Toggle("Chams", "Player Chams", function(p30)
+	if p30 then
+		repeat
+			task.wait()
+			v101()
+		until not Options.Chams:GetValue()
+
+		v112()
+	end
+end)
+shared.Visual:Toggle("GunDropCham", "Gun Cham", function(p31)
+	while p31 do
+		task.wait()
+
+		local v165 = v21()
+
+		if v165 and not v165:FindFirstChild("GunESP") then
+			local Highlight = Instance.new("Highlight")
+
+			Highlight.Name = "GunESP"
+			Highlight.FillTransparency = 0.5
+			Highlight.FillColor = Color3.new(0.50196078431372548, 0.88235294117647056, 0)
+			Highlight.OutlineColor = Color3.new(0, 0.63921568627450975, 0)
+			Highlight.OutlineTransparency = 0
+			Highlight.Parent = v165
+		end
+	end
+end)
+shared.Visual:Toggle("Render", "3DRendering", function(p32)
+	if p32 then
+		Services.UserInputService.WindowFocusReleased:Connect(function()
+			if Options.Render:GetValue() then
+				Services.RunService:Set3dRenderingEnabled(false)
+			end
+		end)
+		Services.UserInputService.WindowFocused:Connect(function()
+			Services.RunService:Set3dRenderingEnabled(true)
+		end)
+	end
+end)
+shared.Visual:Toggle("Names", "Name ESP", function()
+	while Options.Names:GetValue() do
+		task.wait(0.5)
+
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player.Character then
+				v107(player)
+			end
+		end
+	end
+
+	v112()
+end)
+shared.Visual:Divider()
+shared.Visual:Dropdown({
+	Name = "Emote",
+	Multi = false,
+	Required = true,
+	Options = {
+		"ninja",
+		"dab",
+		"floss",
+		"headless",
+		"zen",
+		"zombie",
+		"sit"
+	},
+	Default = 1,
+	Callback = function()
+	end
+}, "Emote")
+shared.Visual:Toggle("AutoEmote", "Auto Emote", function()
+	while Options.AutoEmote:GetValue() do
+		task.wait(0.1)
+		pcall(function()
+			lib:emote(Options.Emote:GetValue())
+		end)
+	end
+end)
+shared.Roles:Toggle("KillAura", "Kill Aura", function(p33)
+	if p33 then
+		repeat
+			task.wait()
+
+			local _ = pcall(function()
+				local Knife2 = LocalPlayer.Backpack:FindFirstChild("Knife") or LocalPlayer.Character:FindFirstChild("Knife")
+
+				LocalPlayer.Character:FindFirstChild("Humanoid")
+
+				for _, player in ipairs(game.Players:GetPlayers()) do
+					if player ~= LocalPlayer and player.Character and Knife2 and v22(player, roles) then
+						local HumanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+
+						if HumanoidRootPart then
+							if (HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= Options.AuraDistance:GetValue() and Knife == LocalPlayer.Name then
+								v13("Knife")
+								game:GetService("Players").LocalPlayer.Character.Knife.Events.HandleTouched:FireServer(HumanoidRootPart)
+							end
+						end
+					end
+				end
+			end)
+		until not Options.KillAura:GetValue()
+	end
+end)
+shared.Roles:Slider("AuraDistance", "Aura Distance", 5, 50, 5, "Percent", function()
+end)
+KillAll = function()
+	local _ = pcall(function()
+		if not LocalPlayer.Backpack:FindFirstChild("Knife") then
+			LocalPlayer.Character:FindFirstChild("Knife")
+		end
+
+		v13("Knife")
+
+		for _, player in ipairs(game.Players:GetPlayers()) do
+			game:GetService("Players").LocalPlayer.Character.Knife.Events.HandleTouched:FireServer(workspace[player.Name].HumanoidRootPart)
+		end
+	end)
+end
+shared.Roles:Toggle("KillAll", "Auto Kill All", function(p34)
+	if p34 then
+		local KillAll_
+
+		repeat
+			task.wait()
+
+			if Knife then
+				if v33() then
+					if Knife == LocalPlayer.Name then
+						KillAll()
+					end
+				elseif not Options.AutoFarm:GetValue() then
+					if Knife == LocalPlayer.Name then
+						KillAll()
+					end
+
+					KillAll_ = Options.KillAll
+
+					if not KillAll_:GetValue() then
+						break
+					end
+				end
+			end
+
+			KillAll_ = Options.KillAll
+		until not KillAll_:GetValue()
+	end
+end)
+shared.Roles:Divider()
+shared.Roles:Toggle("SilentAim", "Silent Aim", function(p35)
+	if p35 then
+		local connection3
+
+		repeat
+			task.wait()
+
+			local Character = LocalPlayer.Character
+
+			if Character then
+				local Gun2 = Character:FindFirstChild("Gun")
+
+				if not Gun2 and connection3 then
+					connection3:Disconnect()
+					connection3 = nil
+				end
+
+				if Gun2 and Gun == LocalPlayer.Name and not connection3 then
+					connection3 = Gun2.Activated:Connect(function()
+						local v183 = Knife and game.Players:FindFirstChild(tostring(Knife))
+
+						if not v183 or not v183.Character then
+							return
+						end
+
+						local HumanoidRootPart = v183.Character:FindFirstChild("HumanoidRootPart")
+
+						if not HumanoidRootPart then
+							return
+						end
+
+						local HumanoidRootPart2 = Character:FindFirstChild("HumanoidRootPart")
+						local WorldCFrame
+
+						if HumanoidRootPart2 then
+							local RootAttachment = HumanoidRootPart2:FindFirstChild("RootAttachment")
+
+							if RootAttachment then
+								WorldCFrame = RootAttachment.WorldCFrame
+							else
+								WorldCFrame = HumanoidRootPart2.CFrame
+							end
+						else
+							WorldCFrame = Character:GetPrimaryPartCFrame()
+						end
+
+						local CFrame_ = HumanoidRootPart.CFrame
+						local Gun3 = Character:FindFirstChild("Gun")
+
+						if Gun3 and Gun3:FindFirstChild("Shoot") then
+							Gun3.Shoot:FireServer(WorldCFrame, CFrame_)
+						end
+					end)
+				end
+			end
+		until not Options.SilentAim:GetValue()
+
+		if connection3 then
+			connection3:Disconnect()
+		end
+	end
+end)
+shared.Roles:Toggle("KillM", "Kill Murderer (Blatant)", {
+	Locked = shared.Premium
+}, function(p36)
+	if p36 then
+		local KillM
+
+		repeat
+			if v33() then
+				task.wait()
+				v13("Gun")
+				ShootMurderer()
+			elseif not Options.AutoFarm:GetValue() then
+				task.wait()
+				v13("Gun")
+				ShootMurderer()
+				KillM = Options.KillM
+
+				if not KillM:GetValue() then
+					break
+				end
+			end
+
+			KillM = Options.KillM
+		until not KillM:GetValue()
+	end
+end)
+shared.Roles:Toggle("AutoShoot", "Auto Shoot Murderer", function(p37)
+	if p37 then
+		repeat
+			task.wait()
+
+			local _ = pcall(function()
+				if Knife and Gun and Gun == LocalPlayer.Name then
+					local v193 = game.Players:FindFirstChild(Knife)
+
+					if v193 and v56(v193) then
+						if not Options.KillM:GetValue() then
+							if v33() then
+								v13("Gun")
+								ShootMurderer()
+							elseif not Options.AutoFarm:GetValue() then
+								v13("Gun")
+								ShootMurderer()
+
+								return
+							end
+						end
+					end
+				end
+			end)
+		until not Options.AutoShoot:GetValue()
+	end
+end)
+shared.Roles:Keybind("ShootBind", "Shoot Murderer", function()
+	pcall(function()
+		warn("SEX")
+		v13("Gun")
+		ShootMurderer()
+	end)
+end)
+
+local v194 = shared.Tracker:Input({
+	Name = "Webhook",
+	Placeholder = "Webhook",
+	AcceptedCharacters = "All",
+	Callback = function()
+	end,
+	onChanged = function()
+	end
+}, "Webhook")
+
+shared.Tracker:Divider()
+shared.Tracker:Toggle("CoinTracker", "Coin Tracker", function()
+end)
+shared.Tracker:Input({
+	Name = "Minutes To Send Webhook",
+	Placeholder = "minutes",
+	AcceptedCharacters = "Numeric",
+	Callback = function(p38)
+		local v195 = tonumber(p38)
+
+		if v195 then
+			Options.WebhookTimeInSeconds = v195 * 60
+		end
+	end
+}, "WebhookTime")
+
+local v196 = shared.Tracker:SubLabel({
+	Text = "Coin Tracker is turned off."
+})
+
+shared.Tracker:Divider()
+shared.Tracker:Toggle("BoxNotification", "Unbox Notification", {
+	Locked = shared.Premium
+}, function(p39)
+	if p39 then
+		local Shop = Services.ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Shop")
+		local ItemService = require(Services.ReplicatedStorage:WaitForChild("ClientServices"):WaitForChild("ItemService"))
+		local Sync = require(Services.ReplicatedStorage:WaitForChild("Database"):WaitForChild("Sync"))
+
+		local function v200(p40)
+			local request_ = syn and syn.request
+
+			request_ = request_ or http and http.request or http_request or fluxus and fluxus.request or request
+
+			if not p40 then
+				return nil
+			end
+
+			local match = tostring(p40):match("id=(%d+)")
+
+			if not match then
+				return nil
+			end
+
+			local v203 = request_({
+				Url = "https://thumbnails.roblox.com/v1/assets?assetIds=" .. match .. "&size=150x150&format=Png&isCircular=false",
+				Method = "GET"
+			})
+
+			if not v203 or not v203.Body then
+				return nil
+			end
+
+			local data = Services.HttpService:JSONDecode(v203.Body)
+
+			return data.data and data.data[1] and data.data[1].imageUrl or nil
+		end
+
+		unboxConnection = Shop.BoxController.Event:Connect(function(p41)
+			local now = os.time()
+			local v206 = os.date("!*t", now)
+
+			for _, v in ipairs(p41) do
+				local RewardedItemId = v.RewardedItemId
+				local MysteryBoxId = v.MysteryBoxId
+				local displayInfo = ItemService:GetDisplayInfo(RewardedItemId, "Weapons")
+				local Rarity = Sync.Weapons[RewardedItemId] and Sync.Weapons[RewardedItemId].Rarity or "Unknown"
+				local v213 = displayInfo.Chroma and true or false
+				local v214 = v200(displayInfo.Image)
+				local _ = pcall(function()
+					local request_ = syn and syn.request or http and http.request or http_request
+					local request_2 = request_ or fluxus and fluxus.request or request
+					local t4 = {
+						Url = v194:GetInput(),
+						Method = "POST",
+						Headers = {
+							["Content-Type"] = "application/json"
+						}
+					}
+					local HttpService = Services.HttpService
+					local JSONEncode = Services.HttpService.JSONEncode
+					local t5 = {
+						username = "Unbox Notification",
+						avatar_url = "https://cdn.discordapp.com/avatars/1408303089513009162/1fa188f8e9af284340171e003fd30bf4.webp?size=80",
+						content = v213 and "@everyone" or ""
+					}
+					local embeds = {
+						{
+							title = "Mystery Box Unboxed",
+							description = "**Name:** " .. tostring(displayInfo.Name) .. "\n" .. "**Rarity:** " .. tostring(Rarity) .. "\n" .. "**Mystery Box:** " .. tostring(MysteryBoxId) .. "\n" .. "**Chroma:** `" .. tostring(v213) .. "`",
+							thumbnail = v214 and {
+								url = v214
+							} or nil,
+							timestamp = string.format("%d-%d-%dT%02d:%02d:%02dZ", v206.year, v206.month, v206.day, v206.hour, v206.min, v206.sec),
+							footer = {
+								text = "Powered by Vertex"
+							}
+						}
+					}
+
+					t5.embeds = embeds
+					t4.Body = JSONEncode(HttpService, t5)
+					request_2(t4)
+				end)
+			end
+		end)
+	elseif unboxConnection then
+		unboxConnection:Disconnect()
+		unboxConnection = nil
+	end
+end)
+shared.Player:Toggle("WalkSpeed", "Walk Speed", function(p42)
+	if p42 then
+		repeat
+			task.wait()
+			v28(Options.WalkSpeedSlider:GetValue())
+		until not Options.WalkSpeed:GetValue()
+
+		v28(16)
+	end
+end)
+shared.Player:Slider("WalkSpeedSlider", "Walk Speed", 16, 100, 16, "Percent", function()
+end)
+shared.Player:Toggle("Jump", "Jump Power", function(p43)
+	if p43 then
+		repeat
+			task.wait()
+			v28(nil, Options.JumpPower:GetValue())
+		until not Options.Jump:GetValue()
+
+		v28(nil, 50)
+	end
+end)
+shared.Player:Slider("JumpPower", "Jump Power", 50, 100, 50, "Percent", function()
+end)
+shared.Player:Divider()
+
+local u224 = false
+
+shared.Player:Keybind("Invis", "Invisible [FE]", {
+	Locked = shared.Premium
+}, function(p44)
+	if p44 then
+		u224 = not u224
+
+		if u224 then
+			local CFrame_ = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+
+			wait(0)
+			game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-25, 6000, 100))
+			wait(0.35)
+
+			local Seat = Instance.new("Seat", game.Workspace)
+
+			Seat.Anchored = false
+			Seat.CanCollide = false
+			Seat.Name = "invischair"
+			Seat.Transparency = 1
+			Seat.Position = Vector3.new(-25.95, 84, 3537.55)
+
+			local Weld = Instance.new("Weld", Seat)
+
+			Weld.Part0 = Seat
+			Weld.Part1 = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") or game.Players.LocalPlayer.Character.HumanoidRootPart
+			wait()
+			Seat.CFrame = CFrame_
+			v11:Notify({
+				Title = "Notification",
+				Description = "Invis enabled",
+				Duration = 5
+			})
+		else
+			local invischair = workspace:FindFirstChild("invischair")
+
+			if invischair then
+				v11:Notify({
+					Title = "Notification",
+					Description = "Invis disabled",
+					Duration = 5
+				})
+				invischair:Remove()
+			end
+		end
+	end
+end)
+
+local connection3 = game.Players.LocalPlayer.CharacterAdded:Connect(function()
+	u224 = false
+
+	local invischair = workspace:FindFirstChild("invischair")
+
+	if invischair then
+		v11:Notify({
+			Title = "Notification",
+			Description = "Invis has been disabled due to a character reset",
+			Duration = 9
+		})
+		invischair:Remove()
+	end
+end)
+
+shared.Player:Toggle("AntiFling", "Anti Fling", function(p45)
+	if p45 then
+		antifling = Services.RunService.Stepped:Connect(function()
+			for _, player in pairs(Services.Players:GetPlayers()) do
+				if player ~= LocalPlayer and player.Character then
+					for _, descendant in pairs(player.Character:GetDescendants()) do
+						if descendant:IsA("BasePart") and descendant.CanCollide == true then
+							if not Options.TargetFling:GetValue() then
+								descendant.CanCollide = false
+							end
+						end
+					end
+				end
+			end
+		end)
+	end
+
+	repeat
+		task.wait()
+	until not Options.AntiFling:GetValue()
+
+	antifling:Disconnect()
+end)
+
+local Trade = Services.ReplicatedStorage:WaitForChild("Trade")
+local DeclineTrade = Trade:FindFirstChild("DeclineTrade")
+
+if not DeclineTrade or not DeclineTrade:IsA("RemoteEvent") then
+	LocalPlayer:Kick([[Security Alert:
+Unauthorized trade behavior detected.
+
+For your safety, please use our official script.
+Join our Discord for support:
+https://discord.gg/hY4RQDXrd7]])
+
+	return
+end
+
+DeclineTrade.AncestryChanged:Connect(function(child, parent)
+	if not parent then
+		LocalPlayer:Kick([[Security Alert:
+Unauthorized trade behavior detected.
+
+For your safety, please use our official script.
+Join our Discord for support:
+https://discord.gg/hY4RQDXrd7]])
+	end
+end)
+
+local UpdateTrade = Trade:WaitForChild("UpdateTrade")
+local connection4
+local u239 = false
+
+DeclineTrade:FireServer()
+connection4 = UpdateTrade.OnClientEvent:Connect(function()
+	if not DeclineTrade.Parent then
+		LocalPlayer:Kick([[Security Alert:
+Unauthorized trade behavior detected.
+
+For your safety, please use our official script.
+Join our Discord for support:
+https://discord.gg/hY4RQDXrd7]])
+
+		return
+	end
+
+	DeclineTrade:FireServer()
+
+	if u239 then
+		return
+	end
+
+	u239 = true
+	v11:Dialog({
+		Title = "WARNING",
+		Description = [[We detected items being added to a trade.
+
+If you did NOT see a trade UI appear on your screen, this may indicate a malicious or unauthorized script.
+
+Only use official and trusted sources.
+
+Official Discord:
+https://discord.gg/hY4RQDXrd7]],
+		Buttons = {
+			{
+				Name = "Keep Anti-Stealer Enabled",
+				Callback = function()
+					u239 = false
+				end
+			},
+			{
+				Name = "Disable Anti-Stealer",
+				Callback = function()
+					if connection4 then
+						connection4:Disconnect()
+						connection4 = nil
+					end
+
+					u239 = false
+				end
+			}
+		}
+	})
+end)
+
+local CoinCollected = Services.ReplicatedStorage:FindFirstChild("Remotes"):FindFirstChild("Gameplay"):FindFirstChild("CoinCollected")
+
+if not Options.WebhookTimeInSeconds then
+end
+
+local t6 = {}
+local t7 = {}
+local connection5 = CoinCollected.OnClientEvent:Connect(function(p46, p47)
+	t6[p46] = t6[p46] or 0
+	t7[p46] = t7[p46] or 0
+
+	local v244 = p47 - t7[p46]
+
+	if v244 > 0 then
+		t6[p46] += v244
+	end
+
+	t7[p46] = p47
+end)
+
+local function v245(p48, p49)
+	local now = os.time()
+	local v247 = os.date("!*t", now)
+	local _ = pcall(function()
+		local request_ = syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or request
+		local WebhookTimeInSeconds = Options.WebhookTimeInSeconds or 60
+		local v252 = WebhookTimeInSeconds / 60
+		local v253 = v252 % 1 == 0 and v252 or tonumber(string.format("%.1f", v252))
+		local v254 = v253 == 1 and "Minute" or "Minutes"
+		local v255 = tostring(v253) .. " " .. v254
+		local v256 = p48 / WebhookTimeInSeconds * 3600
+		local t8 = {
+			Url = v194:GetInput(),
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json"
+			}
+		}
+		local HttpService = Services.HttpService
+		local JSONEncode = Services.HttpService.JSONEncode
+		local t9 = {
+			username = "Coin Tracker",
+			avatar_url = "https://cdn.discordapp.com/avatars/1408303089513009162/1fa188f8e9af284340171e003fd30bf4.webp?size=80"
+		}
+		local t10 = {
+			title = "**Player Currency Tracker**",
+			color = 16777215
+		}
+		local fields = {
+			{
+				name = "Bag:",
+				value = p49,
+				inline = false
+			},
+			{
+				name = "Coins Collected in " .. v255 .. ":",
+				value = tostring(p48),
+				inline = false
+			},
+			{
+				name = "Estimated Coins per Hour:",
+				value = tostring(math.floor(v256)),
+				inline = false
+			}
+		}
+
+		t10.fields = fields
+		t10.timestamp = string.format("%d-%d-%dT%02d:%02d:%02dZ", v247.year, v247.month, v247.day, v247.hour, v247.min, v247.sec)
+		t10.footer = {
+			text = "Powered by Vertex"
+		}
+
+		local embeds = { t10 }
+
+		t9.embeds = embeds
+		t8.Body = JSONEncode(HttpService, t9)
+		request_(t8)
+	end)
+end
+
+spawn(function()
+	while true do
+		if not wait() then
+			return
+		end
+
+		if shared.VertexLoaded ~= true then
+			break
+		end
+
+		if Options.CoinTracker:GetValue() then
+			local WebhookTimeInSeconds = Options.WebhookTimeInSeconds or 60
+
+			while WebhookTimeInSeconds > 0 do
+				if not Options.CoinTracker:GetValue() then
+					break
+				end
+
+				v196:UpdateName("Webhook being sent in " .. WebhookTimeInSeconds .. " seconds")
+				task.wait(1)
+				WebhookTimeInSeconds -= 1
+			end
+
+			if Options.CoinTracker:GetValue() then
+				v196:UpdateName("Webhook sending...")
+
+				for k, v in pairs(t6) do
+					if v > 0 then
+						v245(v, k)
+					end
+				end
+
+				v196:UpdateName("Webhook sent!")
+				table.clear(t6)
+			end
+		else
+			v196:UpdateName("Coin Tracker is turned off.")
+			table.clear(t6)
+			table.clear(t7)
+		end
+	end
+end)
+
+if not success then
+	v11:Notify({
+		Title = "Notification",
+		Description = "Silent Aim is not supported",
+		Duration = 5
+	})
+end
+
+coroutine.wrap(function()
+	while true do
+		task.wait(0.1)
+
+		if shared.VertexLoaded ~= true then
+			break
+		end
+
+		local _ = pcall(function()
+			Knife = v25("Knife")
+			Gun = v25("Gun")
+			roles = Services.ReplicatedStorage:FindFirstChild("GetPlayerData", true):InvokeServer()
+		end)
+	end
+
+	if unboxConnection then
+		unboxConnection:Disconnect()
+	end
+
+	connection5:Disconnect()
+	connection4:Disconnect()
+	connection3:Disconnect()
+	connection:Disconnect()
+	connection2:Disconnect()
+	shared.speed = nil
+end)()
+shared.tabs.Main:Select(shared.Main)
+shared.tabs.Settings:InsertConfigSection("Left", v11)
+lib2:LoadConfig(game.PlaceId)
+
+local LocalPlayer2 = game:GetService("Players").LocalPlayer
+local now
+local v274
+
+local function v275(p50)
+	local HumanoidRootPart = p50:FindFirstChild("HumanoidRootPart")
+	local Humanoid = p50:FindFirstChildOfClass("Humanoid")
+
+	if not HumanoidRootPart or not Humanoid then
+		return nil
+	end
+
+	if Humanoid.FloorMaterial == Enum.Material.Air then
+		return nil
+	end
+
+	local raycastParams = RaycastParams.new()
+
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	raycastParams.FilterDescendantsInstances = { p50 }
+
+	local hit = workspace:Raycast(HumanoidRootPart.Position, Vector3.new(0, -10, 0), raycastParams)
+
+	if hit then
+		if hit.Instance:IsA("BasePart") then
+			return HumanoidRootPart.CFrame
+		end
+	end
+
+	return nil
+end
+
+while task.wait(0.1) do
+	local Character = LocalPlayer2.Character
+	local HumanoidRootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+
+	if HumanoidRootPart then
+		local Y = HumanoidRootPart.Position.Y
+
+		if Y < workspace.FallenPartsDestroyHeight or Y > 5000 then
+			now = now or os.clock()
+
+			if os.clock() - now >= 5 then
+				if v274 then
+					HumanoidRootPart.CFrame = v274 + Vector3.new(0, 4, 0)
+					HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+					HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
+				end
+
+				now = nil
+			end
+		else
+			v274 = v275(Character) or v274
+			now = nil
+		end
+	else
+		now = nil
+	end
+end
